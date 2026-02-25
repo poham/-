@@ -1,0 +1,131 @@
+
+import React, { useRef, useState } from 'react';
+import { ENV_TAGS } from '../../constants';
+
+interface BackgroundSectionProps {
+  state: any;
+  customTags: string[];
+  setCustomTags: (tags: string[]) => void;
+  onChange: (updater: any) => void;
+}
+
+const BackgroundSection: React.FC<BackgroundSectionProps> = ({ state, customTags, setCustomTags, onChange }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [newTag, setNewTag] = useState('');
+
+  const handleTagClick = (tag: string) => {
+    const currentText = state.description || '';
+    const newText = currentText.length > 0 
+      ? `${currentText.trim()}, ${tag} ` 
+      : `${tag} `;
+    onChange({ ...state, description: newText });
+    if (textareaRef.current) textareaRef.current.focus();
+  };
+
+  const handleAddCustomTag = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newTag.trim() && !customTags.includes(newTag.trim())) {
+      setCustomTags([...customTags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const removeCustomTag = (tagToRemove: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCustomTags(customTags.filter(t => t !== tagToRemove));
+  };
+
+  return (
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-6">
+        <h3 className="text-3xl font-black text-white flex items-center gap-4">
+          <span className="p-3 bg-indigo-600/20 rounded-2xl text-indigo-500">🏙️</span> 
+          STEP 02. 場景空間
+        </h3>
+        <div className="text-[12px] font-mono text-slate-500 bg-slate-800/50 px-4 py-1.5 rounded-full uppercase tracking-widest">Space Definition</div>
+      </div>
+      
+      <div className="space-y-12">
+        {/* 01. 空間細節描述 - 主要內容 */}
+        <div className="space-y-8">
+          <label className="text-[14px] uppercase font-black text-orange-500 tracking-[0.2em] ml-2">空間細節描述 (Space Narrative)</label>
+          <textarea
+            ref={textareaRef}
+            value={state.description}
+            onChange={(e) => onChange({ ...state, description: e.target.value })}
+            placeholder="描述深度、道具、大氣效果..."
+            className="w-full bg-slate-950 border border-white rounded-[3rem] px-6 py-5 h-48 text-[15px] font-medium text-slate-300 focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 outline-none leading-relaxed transition-all shadow-inner placeholder-slate-800 hover:border-orange-500/30"
+          />
+        </div>
+
+        {/* 02. 環境標籤庫 + 環境底色 - 輔助工具 */}
+        <div className="bg-slate-900/30 p-6 rounded-[4rem] border border-slate-800 space-y-10 shadow-2xl">
+          <div className="flex items-center justify-between">
+            <label className="text-[14px] uppercase font-black text-slate-500 tracking-widest ml-2">環境標籤庫 (Quick Tags)</label>
+            
+            {/* 環境底色 - 緊湊版本 */}
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">底色</span>
+              <input 
+                type="color" 
+                value={state.bgColor || '#1e293b'} 
+                onChange={(e) => onChange({ ...state, bgColor: e.target.value })} 
+                className="w-10 h-10 rounded-xl bg-slate-900 border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all"
+                title={`環境底色: ${(state.bgColor || '#1E293B').toUpperCase()}`}
+              />
+              <span className="text-[10px] font-mono text-slate-600">{(state.bgColor || '#1E293B').toUpperCase()}</span>
+            </div>
+          </div>
+          
+          <form onSubmit={handleAddCustomTag} className="flex gap-4">
+             <input 
+              type="text" 
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="新增自定義場景標籤..."
+              className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-5 py-2.5 text-[13px] font-bold text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+             />
+             <button type="submit" className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all">＋ 新增</button>
+          </form>
+
+          {customTags.length > 0 && (
+            <div className="space-y-6">
+              <p className="text-[11px] font-black text-orange-400 uppercase tracking-widest border-l-4 border-orange-500/30 pl-4">我的專屬場景 (Personal Env)</p>
+              <div className="flex flex-wrap gap-4">
+                {customTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    className="px-6 py-2.5 bg-slate-800 border border-orange-500/20 rounded-2xl text-[13px] font-bold text-orange-200 hover:bg-orange-600/20 hover:border-orange-500 transition-all flex items-center gap-3 group"
+                  >
+                    + {tag}
+                    <span onClick={(e) => removeCustomTag(tag, e)} className="opacity-0 group-hover:opacity-100 text-orange-500 hover:text-white transition-opacity text-[14px]">×</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {ENV_TAGS.map(group => (
+            <div key={group.name} className="space-y-6">
+              <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-indigo-500 pl-4">{group.name}</p>
+              <div className="flex flex-wrap gap-4">
+                {group.tags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    className="px-6 py-2.5 bg-slate-800 border border-slate-700 rounded-2xl text-[13px] font-bold text-slate-400 hover:bg-indigo-600/20 hover:border-indigo-500 hover:text-indigo-200 transition-all active:scale-95 shadow-sm"
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BackgroundSection;

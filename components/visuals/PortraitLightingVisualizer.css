@@ -1,0 +1,54 @@
+/* Elevation Slider 自定義樣式 */
+.elevation-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  border-radius: 8px;
+  outline: none;
+}
+
+/* Slider Thumb (拖曳的圓點) - 使用 CSS 變數動態改變顏色 */
+.elevation-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--slider-thumb-color, #fbbf24);
+  cursor: pointer;
+  border: 4px solid white;
+  box-shadow: var(--slider-thumb-shadow, 0 0 20px rgba(251, 191, 36, 0.8));
+  transition: all 0.2s ease;
+  margin-top: -10px; /* 修正垂直對齊：(32px - 12px) / 2 = 10px */
+}
+
+.elevation-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.elevation-slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--slider-thumb-color, #fbbf24);
+  cursor: pointer;
+  border: 4px solid white;
+  box-shadow: var(--slider-thumb-shadow, 0 0 20px rgba(251, 191, 36, 0.8));
+  transition: all 0.2s ease;
+}
+
+.elevation-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* Slider Track */
+.elevation-slider::-webkit-slider-runnable-track {
+  height: 12px;
+  border-radius: 8px;
+}
+
+.elevation-slider::-moz-range-track {
+  height: 12px;
+  border-radius: 8px;
+  background: #1e293b;
+}

@@ -1,0 +1,72 @@
+@import './design-tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', "Microsoft JhengHei", sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+  }
+  
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* 自定義滾動條 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-secondary);
+    border-radius: var(--radius-md);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+  }
+  
+  /* 選取文字樣式 */
+  ::selection {
+    background-color: rgba(59, 130, 246, 0.3);
+    color: var(--text-primary);
+  }
+}
+
+@layer components {
+  /* 自定義滾動條類別 */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-secondary) var(--bg-secondary);
+  }
+  
+  /* 步驟顏色工具類 */
+  .step-color-presets { color: var(--step-00-presets); }
+  .step-color-subject { color: var(--step-01-subject); }
+  .step-color-scene { color: var(--step-02-scene); }
+  .step-color-camera { color: var(--step-03-camera); }
+  .step-color-light { color: var(--step-04-light); }
+  .step-color-style { color: var(--step-05-style); }
+  .step-color-export { color: var(--step-06-export); }
+  .step-color-settings { color: var(--step-settings); }
+  
+  /* 步驟背景工具類 */
+  .step-bg-presets { background-color: rgba(59, 130, 246, 0.1); }
+  .step-bg-subject { background-color: rgba(59, 130, 246, 0.1); }
+  .step-bg-scene { background-color: rgba(99, 102, 241, 0.1); }
+  .step-bg-camera { background-color: rgba(59, 130, 246, 0.1); }
+  .step-bg-light { background-color: rgba(234, 179, 8, 0.1); }
+  .step-bg-style { background-color: rgba(168, 85, 247, 0.1); }
+  .step-bg-export { background-color: rgba(59, 130, 246, 0.1); }
+  .step-bg-settings { background-color: rgba(100, 116, 139, 0.1); }
+}

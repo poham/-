@@ -1,0 +1,120 @@
+import React, { useState, useMemo } from 'react';
+
+// Custom Hooks
+import { usePromptState } from './hooks/usePromptState';
+import { useSidebarState } from './hooks/useSidebarState';
+import { useCustomTags } from './hooks/useCustomTags';
+import { useUserPresets } from './hooks/useUserPresets';
+import { useWindowSize } from './hooks/useWindowSize';
+
+// Utils
+import { assemblePromptParts, assembleFinalPrompt } from './utils/promptAssembly';
+
+// Layout Components
+import NavigationSidebar from './components/layout/NavigationSidebar';
+import MainContentArea from './components/layout/MainContentArea';
+import ProtocolDeck from './components/layout/ProtocolDeck';
+import OverlayBackdrop from './components/layout/OverlayBackdrop';
+
+type ActiveTab = 'presets' | 'subject' | 'scene' | 'camera' | 'light' | 'style' | 'export' | 'settings';
+
+const App: React.FC = () => {
+  // 1. Custom Hooks (狀態管理)
+  const { state, setState } = usePromptState();
+  const { sidebarState, toggleLeftSidebar, toggleRightSidebar } = useSidebarState();
+  const { customTags, setCustomTags } = useCustomTags();
+  const { userPresets, setUserPresets } = useUserPresets();
+  const { width: windowWidth } = useWindowSize();
+  
+  // 2. Local UI State
+  const [activeTab, setActiveTab] = useState<ActiveTab>('presets');
+  const [copyFeedback, setCopyFeedback] = useState(false);
+  
+  // 3. Computed Values
+  const promptParts = useMemo(() => assemblePromptParts(state), [state]);
+  const finalPrompt = useMemo(() => assembleFinalPrompt(state), [state]);
+  const isMobileOrTablet = windowWidth < 1500;
+  
+  // 4. Event Handlers
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(finalPrompt);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 2000);
+  };
+  
+  const handleLoadPreset = (cfg: typeof state) => {
+    setState(cfg);
+    setActiveTab('export');
+  };
+  
+  const handleImportSettings = (newTags: typeof customTags, newPresets: typeof userPresets) => {
+    setCustomTags(newTags);
+    setUserPresets(newPresets);
+    setActiveTab('presets');
+  };
+  
+  // 處理導航項目點擊 - 在手機和平板上自動關閉導航欄
+  const handleTabChange = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    // 在手機和平板上選擇導航項目後自動關閉左側欄
+    if (isMobileOrTablet) {
+      toggleLeftSidebar();
+    }
+  };
+  
+  // 5. Render
+  return (
+    <div className="flex h-screen bg-[#020617] text-slate-200 overflow-hidden selection:bg-orange-500/30">
+      {/* 背景遮罩 - 當左側導航欄在手機或平板上開啟時顯示 */}
+      <OverlayBackdrop
+        isVisible={sidebarState.leftSidebarOpen && isMobileOrTablet}
+        onClick={toggleLeftSidebar}
+        zIndex={40}
+      />
+      
+      {/* 背景遮罩 - 當右側預覽欄在手機或平板上開啟時顯示 */}
+      <OverlayBackdrop
+        isVisible={sidebarState.rightSidebarOpen && isMobileOrTablet}
+        onClick={toggleRightSidebar}
+        zIndex={40}
+      />
+      
+      <NavigationSidebar 
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        isOpen={sidebarState.leftSidebarOpen}
+        onToggle={toggleLeftSidebar}
+      />
+      
+      <MainContentArea
+        activeTab={activeTab}
+        state={state}
+        onStateChange={setState}
+        customTags={customTags}
+        onCustomTagsChange={setCustomTags}
+        userPresets={userPresets}
+        onUserPresetsChange={setUserPresets}
+        finalPrompt={finalPrompt}
+        onLoadPreset={handleLoadPreset}
+        onImportSettings={handleImportSettings}
+        leftSidebarOpen={sidebarState.leftSidebarOpen}
+        rightSidebarOpen={sidebarState.rightSidebarOpen}
+        onToggleLeftSidebar={toggleLeftSidebar}
+        onToggleRightSidebar={toggleRightSidebar}
+      />
+      
+      <ProtocolDeck
+        promptParts={promptParts}
+        finalPrompt={finalPrompt}
+        cameraConfig={state.camera}
+        promptState={state}
+        isOpen={sidebarState.rightSidebarOpen}
+        onToggle={toggleRightSidebar}
+        onCopy={handleCopyPrompt}
+        copyFeedback={copyFeedback}
+      />
+    </div>
+  );
+};
+
+export default App;

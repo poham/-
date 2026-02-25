@@ -1,0 +1,7 @@
+{
+  "name": "泡泡newV2.4",
+  "description": "專業級的 Gemini 圖像模型結構化提示工程工具，具備攝影術語和模組化元件架構。",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

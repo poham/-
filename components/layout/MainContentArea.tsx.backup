@@ -1,0 +1,168 @@
+import React from 'react';
+import { PromptState, CustomTags, Preset } from '../../types';
+import SidebarToggleButton from './SidebarToggleButton';
+import PresetManager from '../PresetManager';
+import SubjectSection from '../sections/SubjectSection';
+import BackgroundSection from '../sections/BackgroundSection';
+import CameraSection from '../sections/CameraSection';
+import OpticsSection from '../sections/OpticsSection';
+import StyleSection from '../sections/StyleSection';
+import ShareSection from '../sections/ShareSection';
+import SettingsSection from '../sections/SettingsSection';
+
+type ActiveTab = 'presets' | 'subject' | 'scene' | 'camera' | 'light' | 'style' | 'export' | 'settings';
+
+interface MainContentAreaProps {
+  activeTab: ActiveTab;
+  state: PromptState;
+  onStateChange: (state: PromptState) => void;
+  customTags: CustomTags;
+  onCustomTagsChange: (tags: CustomTags) => void;
+  userPresets: Preset[];
+  onUserPresetsChange: (presets: Preset[]) => void;
+  finalPrompt: string;
+  onLoadPreset?: (cfg: PromptState) => void;
+  onImportSettings?: (tags: CustomTags, presets: Preset[]) => void;
+  leftSidebarOpen: boolean;
+  rightSidebarOpen: boolean;
+  onToggleLeftSidebar: () => void;
+  onToggleRightSidebar: () => void;
+}
+
+const MainContentArea: React.FC<MainContentAreaProps> = ({
+  activeTab,
+  state,
+  onStateChange,
+  customTags,
+  onCustomTagsChange,
+  userPresets,
+  onUserPresetsChange,
+  finalPrompt,
+  onLoadPreset,
+  onImportSettings,
+  leftSidebarOpen,
+  rightSidebarOpen,
+  onToggleLeftSidebar,
+  onToggleRightSidebar
+}) => {
+  const navItems: { id: ActiveTab; label: string }[] = [
+    { id: 'presets', label: '藝廊預設' },
+    { id: 'subject', label: '主體細節' },
+    { id: 'scene', label: '場景空間' },
+    { id: 'camera', label: '攝影設定' },
+    { id: 'light', label: '燈光物理' },
+    { id: 'style', label: '模擬風格' },
+    { id: 'export', label: '協定導出' },
+    { id: 'settings', label: '系統設定' },
+  ];
+
+  const currentLabel = navItems.find(n => n.id === activeTab)?.label || '';
+
+  return (
+    <section className="flex-1 flex flex-col overflow-hidden bg-[radial-gradient(circle_at_20%_20%,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent relative">
+      {/* 頂部工具列 - 只在手機和平板模式顯示 */}
+      <div className="xl:hidden flex items-center justify-between px-4 py-2.5 bg-[#080c18]/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30 shadow-lg">
+        <SidebarToggleButton
+          side="left"
+          isOpen={leftSidebarOpen}
+          onClick={onToggleLeftSidebar}
+          position="inline"
+        />
+        
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center text-sm shadow-md shadow-yellow-500/20">
+            🍌
+          </div>
+          <div className="leading-tight">
+            <h1 className="font-black text-[9px] tracking-[0.25em] text-white">NANO BANANA</h1>
+            <p className="text-[7px] text-slate-500 font-mono leading-none">PROTOCOL V2.5</p>
+          </div>
+        </div>
+        
+        <SidebarToggleButton
+          side="right"
+          isOpen={rightSidebarOpen}
+          onClick={onToggleRightSidebar}
+          position="inline"
+        />
+      </div>
+      
+      {/* 主內容區域 */}
+      <div className="flex-1 overflow-y-auto p-6 md:p-14 custom-scrollbar">
+      <header className="mb-14">
+        <div className="flex items-center gap-4 text-slate-500 mb-4">
+          <span className="font-mono text-[11px] font-black tracking-[0.5em] uppercase opacity-50">
+            Studio Station // Sequence Flow
+          </span>
+          <div className="h-px flex-1 bg-slate-800/50" />
+        </div>
+        <h2 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+          {currentLabel}
+        </h2>
+      </header>
+
+      <div className="bg-[#0f172a]/40 border border-slate-800 p-8 md:p-14 rounded-[4rem] shadow-2xl backdrop-blur-3xl ring-1 ring-white/5 min-h-[700px]">
+        {activeTab === 'presets' ? (
+          <PresetManager 
+            currentConfig={state} 
+            userPresets={userPresets}
+            setUserPresets={onUserPresetsChange}
+            onLoadPreset={onLoadPreset || ((cfg) => onStateChange(cfg))} 
+          />
+        ) : activeTab === 'subject' ? (
+          <SubjectSection 
+            state={state.subject} 
+            customTags={customTags.subject} 
+            setCustomTags={(tags) => onCustomTagsChange({...customTags, subject: tags})} 
+            onChange={(sub) => onStateChange({...state, subject: sub})} 
+          />
+        ) : activeTab === 'scene' ? (
+          <BackgroundSection 
+            state={state.background} 
+            customTags={customTags.background} 
+            setCustomTags={(tags) => onCustomTagsChange({...customTags, background: tags})} 
+            onChange={(bg) => onStateChange({...state, background: bg})} 
+          />
+        ) : activeTab === 'camera' ? (
+          <CameraSection 
+            config={state.camera} 
+            opticsConfig={state.optics} 
+            customTags={customTags.cameraAngle} 
+            setCustomTags={(tags) => onCustomTagsChange({...customTags, cameraAngle: tags})} 
+            onChange={(cam) => onStateChange({...state, camera: cam})} 
+            onOpticsChange={(opt) => onStateChange({...state, optics: opt})} 
+          />
+        ) : activeTab === 'light' ? (
+          <OpticsSection 
+            config={state.optics} 
+            customTags={customTags.mood} 
+            setCustomTags={(tags) => onCustomTagsChange({...customTags, mood: tags})} 
+            onChange={(opt) => onStateChange({...state, optics: opt})} 
+          />
+        ) : activeTab === 'style' ? (
+          <StyleSection 
+            state={state.style} 
+            customTags={customTags.style} 
+            setCustomTags={(tags) => onCustomTagsChange({...customTags, style: tags})} 
+            onChange={(sty) => onStateChange({...state, style: sty})} 
+          />
+        ) : activeTab === 'settings' ? (
+          <SettingsSection 
+            currentTags={customTags} 
+            currentPresets={userPresets} 
+            onImport={onImportSettings || ((newTags, newPresets) => {
+              onCustomTagsChange(newTags);
+              onUserPresetsChange(newPresets);
+            })}
+          />
+        ) : (
+          // Export tab
+          <ShareSection config={state} finalPrompt={finalPrompt} onUpdate={onStateChange} />
+        )}
+      </div>
+      </div>
+    </section>
+  );
+};
+
+export default MainContentArea;

@@ -1,0 +1,91 @@
+/**
+ * Nano Banana Design Tokens
+ * 設計系統變數 - 保留步驟顏色 + 提升文字清晰度
+ */
+
+:root {
+  /* ========== 背景色 ========== */
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #141824;
+  --bg-tertiary: #1e2433;
+  --bg-card: #1e2433;
+  --bg-hover: #2a3142;
+  
+  /* ========== 步驟專屬顏色（保留） ========== */
+  --step-00-presets: #3b82f6;   /* 藍色 - 藝廊預設 */
+  --step-01-subject: #3b82f6;   /* 藍色 - 主體細節 */
+  --step-02-scene: #6366f1;     /* 靛藍色 - 場景空間 */
+  --step-03-camera: #3b82f6;    /* 藍色 - 攝影設定 */
+  --step-04-light: #eab308;     /* 黃色 - 燈光物理 */
+  --step-05-style: #a855f7;     /* 紫色 - 模擬風格 */
+  --step-06-export: #3b82f6;    /* 藍色 - 協定導出 */
+  --step-settings: #64748b;     /* 灰色 - 系統設定 */
+  
+  /* ========== 通用強調色 ========== */
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-yellow: #eab308;
+  --accent-purple: #a855f7;
+  --accent-orange: #f97316;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  
+  /* ========== 文字顏色（提升對比度） ========== */
+  --text-primary: #ffffff;      /* 純白 - 主標題 */
+  --text-secondary: #e2e8f0;    /* 淺灰 - 正文 */
+  --text-tertiary: #94a3b8;     /* 中灰 - 提示文字 */
+  --text-muted: #64748b;        /* 深灰 - 次要提示 */
+  
+  /* ========== 邊框 ========== */
+  --border-primary: #1e293b;
+  --border-secondary: #334155;
+  --border-hover: #475569;
+  
+  /* ========== 陰影 ========== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  
+  /* ========== 圓角 ========== */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  
+  /* ========== 間距 ========== */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  
+  /* ========== 字體大小（提升可讀性） ========== */
+  --text-xs: 0.75rem;      /* 12px - 最小文字 */
+  --text-sm: 0.875rem;     /* 14px - 標籤/提示 */
+  --text-base: 1rem;       /* 16px - 正文 */
+  --text-lg: 1.125rem;     /* 18px - 區塊標題 */
+  --text-xl: 1.25rem;      /* 20px - 區塊標題（電腦） */
+  --text-2xl: 1.5rem;      /* 24px - 大標題 */
+  --text-3xl: 1.875rem;    /* 30px - 主標題 */
+  --text-4xl: 2.25rem;     /* 36px - 主標題（電腦） */
+  
+  /* ========== 字體粗細 ========== */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  
+  /* ========== 行高 ========== */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  
+  /* ========== 過渡動畫 ========== */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+}

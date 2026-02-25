@@ -1,0 +1,334 @@
+import React, { useMemo, useState } from 'react';
+import { CameraConfig, PromptState } from '../../types';
+import SidebarToggleButton from './SidebarToggleButton';
+import { translatePromptState, generateStructuredBreakdown } from '../../utils/visualTranslators';
+
+interface ProtocolDeckProps {
+  promptParts: { label: string; text: string }[];
+  finalPrompt: string;
+  cameraConfig: CameraConfig;
+  promptState: PromptState;
+  isOpen: boolean;
+  onToggle: () => void;
+  onCopy: () => void;
+  copyFeedback: boolean;
+}
+
+const ProtocolDeck: React.FC<ProtocolDeckProps> = ({
+  promptParts,
+  finalPrompt,
+  cameraConfig,
+  promptState,
+  isOpen,
+  onToggle,
+  onCopy,
+  copyFeedback
+}) => {
+  // 視圖模式切換：linear（線性）或 structured（結構化）
+  const [viewMode, setViewMode] = useState<'linear' | 'structured'>('linear');
+  
+  // 生成結構化數據
+  const structuredData = useMemo(() => {
+    return generateStructuredBreakdown(promptState);
+  }, [promptState]);
+  // 將翻譯後的組件轉換為分類顯示（新的清晰結構）
+  const categorizedParts = useMemo(() => {
+    const translated = translatePromptState(promptState);
+    
+    const parts: { label: string; text: string }[] = [];
+    
+    // 主題
+    if (promptState.category) {
+      parts.push({ label: 'THEME', text: promptState.category });
+    }
+    
+    // 攝影機設定 + 景深（清楚標示這是鏡頭效果）
+    if (translated.composition) {
+      parts.push({ label: 'CAMERA SETUP & OPTICS', text: translated.composition });
+    }
+    
+    // 主體細節 + 朝向
+    if (translated.subject) {
+      parts.push({ label: 'SUBJECT DETAILS', text: translated.subject });
+    }
+    
+    // 環境 + 背景顏色（明確標註背景色）
+    if (translated.environment) {
+      parts.push({ label: 'ENVIRONMENT', text: translated.environment });
+    }
+    
+    // 燈光設定（明確標註燈光色，與背景色分開）
+    if (translated.lighting) {
+      parts.push({ label: 'LIGHTING SETUP', text: translated.lighting });
+    }
+    
+    // 氛圍
+    if (translated.mood) {
+      parts.push({ label: 'MOOD', text: translated.mood });
+    }
+    
+    // 風格與後製
+    if (translated.style) {
+      parts.push({ label: 'RENDERING STYLE', text: translated.style });
+    }
+    
+    return parts;
+  }, [promptState]);
+  
+  return (
+    <aside className={`
+      w-full md:w-[500px] 
+      bg-[#050914] 
+      border-l border-slate-800 
+      p-10 
+      flex flex-col gap-10 
+      shadow-inner 
+      overflow-y-auto 
+      custom-scrollbar
+      transition-all duration-300 ease-in-out
+      fixed xl:relative
+      h-full
+      right-0
+      z-50
+      ${isOpen ? 'translate-x-0' : 'translate-x-full xl:translate-x-0'}
+    `}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h4 className="text-[14px] font-black text-blue-500 uppercase tracking-[0.5em]">
+            Live Protocol Deck
+          </h4>
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+            <span className="text-[12px] font-mono text-slate-500 uppercase tracking-widest font-black">
+              Linked
+            </span>
+          </div>
+        </div>
+        
+        {/* 視圖模式切換按鈕 */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setViewMode('linear')}
+              className={`px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                viewMode === 'linear'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="線性視圖 - AI 可用格式"
+            >
+              線性
+            </button>
+            <button
+              onClick={() => setViewMode('structured')}
+              className={`px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                viewMode === 'structured'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="結構化視圖 - 教學用途"
+            >
+              結構
+            </button>
+          </div>
+          
+          {/* 關閉按鈕 - 只在手機和平板模式下顯示 */}
+          <button
+            onClick={onToggle}
+            className="xl:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 transition-all"
+            aria-label="關閉預覽面板"
+          >
+            <span className="text-xl">✕</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col gap-10">
+        {/* 線性視圖 - AI 可用格式 */}
+        {viewMode === 'linear' && (
+          <div className="bg-[#0f172a] rounded-[3rem] p-10 border border-slate-800/60 shadow-3xl relative group overflow-hidden flex flex-col gap-8">
+            {categorizedParts.map((part, idx) => (
+              <div 
+                key={part.label} 
+                className="space-y-2 animate-in fade-in duration-500" 
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-px bg-blue-500/50" />
+                  <p className="text-[11px] font-black text-blue-400 uppercase tracking-[0.3em]">
+                    {part.label}
+                  </p>
+                </div>
+                <p className="text-2xl font-black text-white leading-relaxed tracking-tight selection:bg-orange-500 selection:text-white">
+                  {part.text}
+                </p>
+              </div>
+            ))}
+            <div className="absolute -bottom-10 -right-10 text-[15rem] font-black text-white/[0.01] pointer-events-none select-none italic">
+              {/* Decorative background number */}
+            </div>
+          </div>
+        )}
+
+        {/* 結構化視圖 - 教學用途 */}
+        {viewMode === 'structured' && (
+          <div className="space-y-6">
+            {/* README 說明 */}
+            <div className="bg-purple-900/20 border border-purple-500/30 rounded-2xl p-5">
+              <p className="text-[11px] text-purple-300 leading-relaxed">
+                💡 {structuredData.readme}
+              </p>
+            </div>
+
+            {/* 物理空間設定 */}
+            <div className="bg-[#0f172a] rounded-[3rem] p-8 border border-slate-800/60 shadow-3xl space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📐</span>
+                <div>
+                  <h5 className="text-[14px] font-black text-orange-400 uppercase tracking-widest">
+                    物理空間設定 (Spatial Geometry)
+                  </h5>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {structuredData.composition_breakdown.spatial_geometry.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* 相機位置 */}
+              <div className="space-y-3 pl-11">
+                <p className="text-[12px] font-black text-blue-300 uppercase tracking-wider">
+                  相機位置 (Camera Position)
+                </p>
+                {structuredData.composition_breakdown.spatial_geometry.camera_position.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0" />
+                    <p className="text-[13px] text-slate-200 leading-relaxed">{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* 主體取景 */}
+              <div className="space-y-3 pl-11">
+                <p className="text-[12px] font-black text-blue-300 uppercase tracking-wider">
+                  主體取景 (Subject Framing)
+                </p>
+                {structuredData.composition_breakdown.spatial_geometry.subject_framing.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0" />
+                    <p className="text-[13px] text-slate-200 leading-relaxed">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 光學成像效果 */}
+            <div className="bg-[#0f172a] rounded-[3rem] p-8 border border-slate-800/60 shadow-3xl space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🔬</span>
+                <div>
+                  <h5 className="text-[14px] font-black text-purple-400 uppercase tracking-widest">
+                    光學成像效果 (Optical Rendering)
+                  </h5>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {structuredData.composition_breakdown.optical_rendering.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* 鏡頭透視 */}
+              <div className="space-y-3 pl-11">
+                <p className="text-[12px] font-black text-purple-300 uppercase tracking-wider">
+                  鏡頭透視 (Lens Perspective)
+                </p>
+                {structuredData.composition_breakdown.optical_rendering.lens_perspective.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 flex-shrink-0" />
+                    <p className="text-[13px] text-slate-200 leading-relaxed">{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* 景深關係 */}
+              {structuredData.composition_breakdown.optical_rendering.depth_of_field_relationship.length > 0 && (
+                <div className="space-y-3 pl-11">
+                  <p className="text-[12px] font-black text-purple-300 uppercase tracking-wider">
+                    景深關係 (Depth of Field)
+                  </p>
+                  {structuredData.composition_breakdown.optical_rendering.depth_of_field_relationship.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <span className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 flex-shrink-0" />
+                      <p className="text-[13px] text-slate-200 leading-relaxed">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 最終提示詞 */}
+            <div className="bg-slate-900/40 rounded-2xl p-6 border border-slate-800/50">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-2 h-px bg-green-500/50" />
+                <p className="text-[11px] font-black text-green-400 uppercase tracking-[0.3em]">
+                  最終提示詞 (Final Prompt for AI)
+                </p>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed font-mono">
+                {structuredData.final_prompt}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-800/50 space-y-6">
+          <div className="flex justify-between items-center">
+            <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.5em]">
+              Core Metadata
+            </span>
+            <button 
+              onClick={onCopy}
+              className="text-[12px] font-black text-blue-500 hover:text-white uppercase transition-colors px-4 py-2 bg-blue-500/5 rounded-xl border border-blue-500/20 hover:bg-blue-600 hover:border-blue-400"
+            >
+              {copyFeedback ? 'Copied ✓' : 'Copy String'}
+            </button>
+          </div>
+          <div className="grid grid-cols-4 gap-3">
+            <div className="p-4 bg-black/60 rounded-2xl border border-white/5 space-y-1">
+              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                Aspect
+              </p>
+              <p className="text-xs font-black text-blue-400 font-mono">
+                {cameraConfig.aspectRatio}
+              </p>
+            </div>
+            <div className="p-4 bg-black/60 rounded-2xl border border-white/5 space-y-1">
+              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                Lens
+              </p>
+              <p className="text-xs font-black text-blue-400 font-mono">
+                {cameraConfig.lens.split(' ')[0]}
+              </p>
+            </div>
+            <div className="p-4 bg-black/60 rounded-2xl border border-white/5 space-y-1">
+              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                Aperture
+              </p>
+              <p className="text-xs font-black text-yellow-400 font-mono">
+                {promptState.optics.dof}
+              </p>
+            </div>
+            <div className="p-4 bg-black/60 rounded-2xl border border-white/5 space-y-1">
+              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                Roll
+              </p>
+              <p className={`text-xs font-black font-mono ${cameraConfig.roll !== 0 ? 'text-orange-400' : 'text-blue-400'}`}>
+                {cameraConfig.roll}°
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+export default ProtocolDeck;
